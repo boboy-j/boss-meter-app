@@ -284,7 +284,7 @@ body .bg-particles {
   border: 2px solid #2a1810;
   overflow: hidden;
   position: relative;
-  height: 130px;
+  aspect-ratio: 0.94;
   box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
 }
 
@@ -312,7 +312,7 @@ body .bg-particles {
 
 .reel-item {
   width: 100%;
-  height: 130px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -320,13 +320,13 @@ body .bg-particles {
   line-height: 1;
   flex-shrink: 0;
   user-select: none;
+  position: relative;
 }
 .reel-item span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   line-height: 1;
 }
 
@@ -335,7 +335,8 @@ body .bg-particles {
   content: '';
   position: absolute;
   top: 50%; left: 0; right: 0;
-  height: 2px; margin-top: -65px;
+  height: 2px;
+  transform: translateY(-50%);
   background: rgba(255,200,0,0.15);
   z-index: 3;
   pointer-events: none;
@@ -644,9 +645,7 @@ body .bg-particles {
 
   .slot-outer { margin: 0 8px; border-radius: 8px; padding: 2px; }
   .slot-inner { gap: 2px; padding: 4px; border-radius: 6px; }
-  .reel-wrap { height: 80px; }
-  .reel-item { height: 80px; font-size: 34px; }
-  .reel-wrap::before { margin-top: -40px; }
+  .reel-item { font-size: 34px; }
 
   .result-board {
     margin: 8px 8px 0;
@@ -700,9 +699,7 @@ body .bg-particles {
   .title-main { font-size: 16px; }
   .title-zh { font-size: 8px; }
 
-  .reel-wrap { height: 68px; }
-  .reel-item { height: 68px; font-size: 28px; }
-  .reel-wrap::before { margin-top: -34px; }
+  .reel-item { font-size: 28px; }
 
   .result-board { min-height: 52px; padding: 6px 8px; }
   .result-text { font-size: 11px; }
@@ -1206,6 +1203,12 @@ async function generateWithAI(symbols) {
   }
 }
 
+/* ══ ITEM HEIGHT HELPER ══ */
+function getItemHeight() {
+  const el = document.querySelector('.reel-item');
+  return el ? el.offsetHeight : 130;
+}
+
 /* ══ STATE ══ */
 let spinning = false;
 let spinCount = 0;
@@ -1230,7 +1233,8 @@ function initReels() {
     });
     // position at random start
     const startIdx = Math.floor(Math.random() * REELS[i].length);
-    reel.style.transform = `translateY(-${startIdx * 130}px)`;
+    const ih = getItemHeight();
+    reel.style.transform = `translateY(-${startIdx * ih}px)`;
   }
 }
 
@@ -1314,20 +1318,21 @@ function handleSpin() {
   const stopDelays = [900, 1300, 1700];
 
   reels.forEach((reel, i) => {
-    const targetOffset = finalIdx[i] * 130;
+    const ih = getItemHeight();
+    const targetOffset = finalIdx[i] * ih;
     // quick spin animation
     let frame = 0;
     const speed = [6, 7, 8][i]; // px per frame ≈ items
     let currentY = parseFloat(reel.style.transform.replace('translateY(', '').replace('px)', '')) || 0;
     const totalItems = REELS[i].length * 3;
-    const maxY = totalItems * 130;
+    const maxY = totalItems * getItemHeight();
 
     // CSS animation approach: shift by large offset then snap
     reel.style.transition = `transform ${stopDelays[i]}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
-    // spin down by REELCOUNT * 130 + target
-    const spinTo = currentY - (REELCOUNT * 130) - (targetOffset - ((-currentY) % (REELS[i].length * 130)));
+    // spin down by REELCOUNT * ih + target
+    const spinTo = currentY - (REELCOUNT * ih) - (targetOffset - ((-currentY) % (REELS[i].length * ih)));
     // simpler: just spin to a big negative, then snap
-    const bigSpin = currentY - (REELCOUNT + finalIdx[i]) * 130;
+    const bigSpin = currentY - (REELCOUNT + finalIdx[i]) * ih;
     reel.style.transform = `translateY(${bigSpin}px)`;
 
     setTimeout(() => {
@@ -1335,7 +1340,7 @@ function handleSpin() {
       reelWraps[i].classList.add('stopping');
       // snap to exact position within first loop
       reel.style.transition = 'none';
-      const snapY = -(finalIdx[i] * 130);
+      const snapY = -(finalIdx[i] * ih);
       reel.style.transform = `translateY(${snapY}px)`;
       setTimeout(() => reelWraps[i].classList.remove('stopping'), 100);
 
