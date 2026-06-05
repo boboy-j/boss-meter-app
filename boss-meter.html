@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日老板能量检测仪</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Noto+Sans+SC:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #FFD700;
+  --gold2: #FFA500;
+  --red: #FF3B30;
+  --green: #39FF14;
+  --bg: #0a0608;
+  --panel: #1a0f0a;
+  --panel2: #261510;
+  --chrome: #8a7a6a;
+  --chrome2: #c4b49a;
+  --chrome3: #e8d8c0;
+  --neon-red: #ff2244;
+  --neon-yellow: #ffe000;
+  --felt: #1a3a1a;
+  --rivet: #6a5a4a;
+  --text-bright: #fff8e8;
+  --shadow-gold: 0 0 10px #FFD700aa, 0 0 30px #FFD70055;
+  --shadow-red: 0 0 10px #ff2244aa, 0 0 30px #ff224455;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Sans SC', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.machine-scale {
+  transform: scale(1.33);
+  transform-origin: center center;
+}
+
+/* scanline overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* bg stars/noise */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(80,20,10,0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(60,30,5,0.3) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(40,10,10,0.4) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── MACHINE BODY ── */
+.machine {
+  position: relative;
+  z-index: 10;
+  width: 440px;
+  background: linear-gradient(170deg, #2a1810 0%, #1a0f0a 40%, #140a08 100%);
+  border-radius: 28px 28px 16px 16px;
+  border: 3px solid var(--chrome);
+  box-shadow:
+    0 0 0 1px #3a2a20,
+    inset 0 1px 0 var(--chrome3),
+    inset 0 -2px 0 #3a2820,
+    0 30px 80px rgba(0,0,0,0.9),
+    0 0 60px rgba(255,100,0,0.08);
+  padding: 0 0 28px;
+}
+
+/* chrome trim top */
+.machine-top {
+  background: linear-gradient(180deg, #d4b896 0%, #8a6a50 30%, #6a4a35 60%, #8a6a50 100%);
+  border-radius: 26px 26px 0 0;
+  padding: 18px 24px 14px;
+  border-bottom: 2px solid #3a2820;
+  position: relative;
+  overflow: hidden;
+}
+.machine-top::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(255,255,255,0.15) 20%,
+    transparent 40%, rgba(255,255,255,0.1) 60%,
+    transparent 80%, rgba(255,255,255,0.08) 100%);
+}
+
+/* ── TITLE MARQUEE ── */
+.title-board {
+  background: #0a0404;
+  border: 2px solid #4a3020;
+  border-radius: 8px;
+  padding: 10px 16px 8px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,100,0,0.2);
+  position: relative;
+}
+
+.title-zh {
+  font-family: 'Boogaloo', cursive;
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  color: var(--chrome2);
+  display: block;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.title-main {
+  font-family: 'Boogaloo', cursive;
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px #FFE000cc, 0 0 20px #FFE00066, 0 0 40px #FFE00033;
+  display: block;
+  animation: flicker 8s infinite;
+}
+
+@keyframes flicker {
+  0%,96%,100% { opacity:1; }
+  97% { opacity:0.7; }
+  98% { opacity:1; }
+  99% { opacity:0.5; }
+}
+
+.title-sub {
+  font-size: 10px;
+  color: #6a5040;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: block;
+}
+
+/* ── LIGHT STRIP ── */
+.light-strip {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0 6px;
+}
+.bulb {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #2a1a10;
+  border: 1px solid #4a3020;
+  transition: all 0.1s;
+}
+.bulb.on-r { background: #ff4422; box-shadow: 0 0 6px #ff4422, 0 0 12px #ff4422; }
+.bulb.on-y { background: #ffe000; box-shadow: 0 0 6px #ffe000, 0 0 12px #ffe000; }
+.bulb.on-g { background: #44ff88; box-shadow: 0 0 6px #44ff88, 0 0 12px #44ff88; }
+
+/* ── SLOT WINDOW ── */
+.slot-outer {
+  margin: 0 20px;
+  background: #0a0404;
+  border-radius: 14px;
+  border: 3px solid #3a2418;
+  box-shadow:
+    inset 0 4px 20px rgba(0,0,0,0.9),
+    inset 0 0 40px rgba(0,0,0,0.5),
+    0 0 0 1px #5a3a28;
+  padding: 4px;
+  position: relative;
+}
+
+.slot-inner {
+  background: linear-gradient(180deg, #0d0808 0%, #080404 100%);
+  border-radius: 10px;
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* felt texture bg */
+.slot-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(20,40,20,0.05) 10px, rgba(20,40,20,0.05) 20px);
+  pointer-events: none;
+}
+
+/* ── INDIVIDUAL REEL ── */
+.reel-wrap {
+  flex: 1;
+  background: linear-gradient(180deg, #181010 0%, #0c0808 100%);
+  border-radius: 8px;
+  border: 2px solid #2a1810;
+  overflow: hidden;
+  position: relative;
+  height: 130px;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+}
+
+/* shine overlay on reel */
+.reel-wrap::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.06) 0%,
+    transparent 20%,
+    transparent 80%,
+    rgba(0,0,0,0.3) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.reel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0s;
+  position: relative;
+  z-index: 1;
+}
+
+.reel-item {
+  width: 100%;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* center line highlight */
+.reel-wrap::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0;
+  height: 2px; margin-top: -65px;
+  background: rgba(255,200,0,0.15);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* payline */
+.payline {
+  position: absolute;
+  top: 50%; left: -4px; right: -4px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,220,0,0.6), rgba(255,220,0,0.9), rgba(255,220,0,0.6), transparent);
+  box-shadow: 0 0 8px rgba(255,220,0,0.5);
+  z-index: 10;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ── RESULT DISPLAY ── */
+.result-board {
+  margin: 12px 20px 0;
+  background: #060303;
+  border: 2px solid #2a1810;
+  border-radius: 10px;
+  padding: 14px 18px;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.result-board::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,100,0,0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.result-idle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: #3a2818;
+  letter-spacing: 0.2em;
+  text-align: center;
+  line-height: 2;
+}
+
+.result-level {
+  font-family: 'Boogaloo', cursive;
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.result-text {
+  font-size: 14px;
+  color: var(--text-bright);
+  text-align: center;
+  line-height: 1.6;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+
+.result-tip {
+  font-size: 11px;
+  color: #8a7060;
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+  line-height: 1.5;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* ── CHROME MIDDLE PANEL ── */
+.mid-panel {
+  margin: 14px 20px 0;
+  background: linear-gradient(180deg, #2a1a10 0%, #1e1208 100%);
+  border: 2px solid #3a2418;
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.credit-display {
+  background: #060303;
+  border: 2px solid #2a1810;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #6a5040;
+  letter-spacing: 0.15em;
+  line-height: 1.6;
+  min-width: 90px;
+}
+.credit-val {
+  font-size: 18px;
+  color: var(--green);
+  text-shadow: 0 0 8px var(--green);
+  display: block;
+  font-weight: 700;
+}
+
+/* ── LEVER ARM ── */
+.lever-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.lever-label {
+  font-size: 9px;
+  color: #4a3828;
+  letter-spacing: 0.2em;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.lever-track {
+  width: 14px;
+  height: 60px;
+  background: linear-gradient(90deg, #1a0f08 0%, #2a1a10 50%, #1a0f08 100%);
+  border-radius: 7px;
+  border: 1px solid #3a2818;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.lever-knob {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--chrome3), var(--chrome) 50%, #4a3020 100%);
+  border: 2px solid var(--chrome2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+  cursor: pointer;
+  position: absolute;
+  top: 4px;
+  transition: top 0.15s ease;
+  z-index: 2;
+}
+.lever-knob:hover { filter: brightness(1.15); }
+.lever-knob.pulled { top: 34px; }
+.lever-knob.spin-active { animation: leverReturn 0.4s ease 0.15s forwards; top: 34px; }
+
+@keyframes leverReturn {
+  0% { top: 34px; }
+  60% { top: 0px; }
+  80% { top: 8px; }
+  100% { top: 4px; }
+}
+
+/* ── BIG SPIN BUTTON ── */
+.spin-btn {
+  background: radial-gradient(circle at 40% 35%, #ff6644, #cc2200 60%, #880000 100%);
+  border: 3px solid #ff4422;
+  border-bottom: 5px solid #660000;
+  border-radius: 50%;
+  width: 64px; height: 64px;
+  font-family: 'Boogaloo', cursive;
+  font-size: 11px;
+  color: #fff;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow:
+    0 4px 0 #440000,
+    0 0 20px rgba(255,50,20,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 1px;
+  position: relative;
+  user-select: none;
+}
+.spin-btn:hover {
+  box-shadow: 0 4px 0 #440000, 0 0 30px rgba(255,80,40,0.7), inset 0 1px 0 rgba(255,255,255,0.3);
+  filter: brightness(1.1);
+}
+.spin-btn:active, .spin-btn.pressed {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #440000, 0 0 15px rgba(255,50,20,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+  border-bottom: 3px solid #660000;
+}
+.spin-btn:disabled {
+  opacity: 0.5; cursor: not-allowed; filter: none;
+}
+.spin-btn .btn-icon { font-size: 22px; line-height: 1; }
+.spin-btn .btn-text { font-size: 10px; letter-spacing: 0.08em; }
+
+/* ── BOTTOM CHROME ── */
+.bottom-chrome {
+  margin: 14px 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.rivet-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.rivet {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--chrome2), var(--rivet) 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.model-plate {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: #3a2818;
+  letter-spacing: 0.2em;
+  text-align: center;
+}
+
+/* ── WIN FLASH ── */
+@keyframes winFlash {
+  0%,100% { box-shadow: inset 0 2px 10px rgba(0,0,0,0.8); background: #060303; }
+  50% { box-shadow: inset 0 2px 10px rgba(0,0,0,0.4), 0 0 30px rgba(255,220,0,0.6); background: #0a0603; }
+}
+.result-board.winning { animation: winFlash 0.4s ease 3; }
+
+@keyframes jackpotText {
+  0%,100% { text-shadow: 0 0 8px currentColor; }
+  50% { text-shadow: 0 0 20px currentColor, 0 0 40px currentColor; }
+}
+.result-level.glow { animation: jackpotText 0.5s ease infinite; }
+
+/* ── COIN BURST ── */
+.coin {
+  position: fixed;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 999;
+  animation: coinFly var(--dur, 1.2s) ease-out forwards;
+}
+@keyframes coinFly {
+  0% { transform: translate(0,0) rotate(0deg) scale(1); opacity:1; }
+  100% { transform: translate(var(--tx,0px), var(--ty,-200px)) rotate(var(--rot,360deg)) scale(0.3); opacity:0; }
+}
+
+/* ── REEL SPIN BLUR ── */
+.reel-wrap.spinning .reel-item {
+  filter: blur(2px);
+}
+.reel-wrap.stopping .reel-item {
+  filter: blur(0);
+  transition: filter 0.2s;
+}
+
+/* ── RESULT COLORS ── */
+.level-safe    { color: #44ff88; text-shadow: 0 0 12px #44ff88; }
+.level-caution { color: #ffe000; text-shadow: 0 0 12px #ffe000; }
+.level-danger  { color: #ff4422; text-shadow: 0 0 12px #ff4422; }
+.level-quantum { color: #aa88ff; text-shadow: 0 0 12px #aa88ff; }
+.level-jackpot { color: #FFD700; text-shadow: 0 0 12px #FFD700, 0 0 24px #FFD70088; }
+</style>
+</head>
+<body>
+
+<div class="machine-scale">
+<div class="machine">
+
+  <!-- TOP CHROME -->
+  <div class="machine-top">
+    <div class="title-board">
+      <span class="title-zh">BOSS ENERGY DETECTOR · MODEL 2025</span>
+      <span class="title-main">今日老板能量检测仪</span>
+      <span class="title-sub">INSERT COIN · PULL LEVER · KNOW YOUR FATE</span>
+    </div>
+  </div>
+
+  <!-- LIGHT STRIP -->
+  <div class="light-strip" id="lightStrip">
+    <div class="bulb" data-c="r"></div><div class="bulb" data-c="y"></div>
+    <div class="bulb" data-c="g"></div><div class="bulb" data-c="r"></div>
+    <div class="bulb" data-c="y"></div><div class="bulb" data-c="g"></div>
+    <div class="bulb" data-c="r"></div><div class="bulb" data-c="y"></div>
+    <div class="bulb" data-c="g"></div><div class="bulb" data-c="r"></div>
+    <div class="bulb" data-c="y"></div><div class="bulb" data-c="g"></div>
+    <div class="bulb" data-c="r"></div><div class="bulb" data-c="y"></div>
+    <div class="bulb" data-c="g"></div>
+  </div>
+
+  <!-- SLOT REELS -->
+  <div class="slot-outer">
+    <div class="payline"></div>
+    <div class="slot-inner">
+      <div class="reel-wrap" id="reel0"><div class="reel" id="r0"></div></div>
+      <div class="reel-wrap" id="reel1"><div class="reel" id="r1"></div></div>
+      <div class="reel-wrap" id="reel2"><div class="reel" id="r2"></div></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-board" id="resultBoard">
+    <div class="result-idle" id="resultIdle">
+      ▸ PULL LEVER OR PRESS SPIN<br>
+      ▸ 拉下拉杆 / 按下转盘<br>
+      ▸ DETECT BOSS ENERGY TODAY
+    </div>
+    <div id="resultContent" style="display:none; width:100%; text-align:center;">
+      <div class="result-level" id="resultLevel"></div>
+      <div class="result-text" id="resultText"></div>
+      <div class="result-tip" id="resultTip"></div>
+    </div>
+  </div>
+
+  <!-- MID PANEL -->
+  <div class="mid-panel">
+    <div class="credit-display">
+      <span style="font-size:9px;letter-spacing:.2em">SPINS TODAY</span>
+      <span class="credit-val" id="creditVal">00</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="lever-area">
+        <div class="lever-label">LEVER</div>
+        <div class="lever-track">
+          <div class="lever-knob" id="leverKnob" onclick="handleSpin()"></div>
+        </div>
+      </div>
+
+      <button class="spin-btn" id="spinBtn" onclick="handleSpin()">
+        <span class="btn-icon">🎰</span>
+        <span class="btn-text">SPIN</span>
+      </button>
+    </div>
+
+    <div class="credit-display" style="text-align:right">
+      <span style="font-size:9px;letter-spacing:.2em">WIN COUNT</span>
+      <span class="credit-val" id="winVal" style="color:#FFD700;text-shadow:0 0 8px #FFD700">00</span>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottom-chrome">
+    <div class="rivet-row">
+      <div class="rivet"></div><div class="rivet"></div><div class="rivet"></div>
+    </div>
+    <div class="model-plate">© BOSS-O-MATIC™ · NO REFUNDS · FATE FINAL</div>
+    <div class="rivet-row">
+      <div class="rivet"></div><div class="rivet"></div><div class="rivet"></div>
+    </div>
+  </div>
+
+</div><!-- /machine-scale -->
+
+<script>
+/* ══ SYMBOLS ══ */
+const REELS = [
+  ['☀️','🌩️','🌪️','🌈','🔥','❄️','🌫️','⚡','🌸','💥'],
+  ['💼','📊','📱','☕','🗒️','💰','🎯','🔔','📢','🍜'],
+  ['😊','😤','🙃','😈','😴','🤔','😱','🥳','😑','🤯'],
+];
+
+/* ══ OUTCOMES ══ */
+// each combo: [emoji0, emoji1, emoji2] → result
+// We use a scoring system based on "vibe categories"
+const VIBE = {
+  '☀️': 'good',  '🌈': 'good',  '🌸': 'good',
+  '🌩️': 'bad',  '🌪️': 'bad',  '💥': 'bad',  '⚡': 'bad',
+  '🔥': 'wild', '❄️': 'cold',  '🌫️': 'weird',
+};
+const BOSS_VIBE = {
+  '😊': 'good', '🥳': 'good',
+  '😤': 'bad',  '😈': 'bad',  '😱': 'bad',
+  '😴': 'cold', '😑': 'cold',
+  '🙃': 'weird','🤔': 'weird',
+  '🤯': 'wild',
+};
+const WORK_VIBE = {
+  '💰': 'good', '🎯': 'good', '🥳': 'good',
+  '💼': 'normal','📊':'normal','📱':'normal','🗒️':'normal',
+  '☕': 'chill', '🍜': 'chill',
+  '🔔': 'warn',  '📢': 'warn',
+};
+
+const RESULTS = {
+  jackpot: {
+    level: '🎉 JACKPOT · 天降好运',
+    levelClass: 'level-jackpot',
+    texts: [
+      '三星连珠！今日老板能量：极乐！',
+      '传说级组合！老板今天发钱了！',
+      '宇宙级吉兆！加薪就在今天！',
+    ],
+    tips: [
+      '> 建议立刻冲进老板办公室，谈薪资，谈升职，谈一切。',
+      '> 此刻老板处于"慷慨模式"，窗口期约4小时，请速度。',
+      '> 警告：此运势千年一遇，错过再等下辈子。',
+    ],
+    win: true,
+  },
+  safe: {
+    level: '✅ SAFE · 绿灯通行',
+    levelClass: 'level-safe',
+    texts: [
+      '老板今天状态稳定，适合汇报进展。',
+      '检测到友好气场，可正常营业。',
+      '今日氛围宜人，摸鱼风险极低。',
+      '老板能量值：平稳。适合提需求、要资源。',
+      '系统提示：今天老板好说话，把上周的报告交了。',
+    ],
+    tips: [
+      '> 建议主动打招呼，顺便提一下你上周的成果。',
+      '> 可适当展示你的存在感，被看见是好事。',
+      '> 今天摸鱼被抓也能翻盘，淡定。',
+      '> 推进卡住的项目，老板今天批得快。',
+      '> 有话好好说，今天沟通效率+200%。',
+    ],
+    win: false,
+  },
+  caution: {
+    level: '⚠️ CAUTION · 谨慎模式',
+    levelClass: 'level-caution',
+    texts: [
+      '老板能量不稳定，保持低调为妙。',
+      '检测到轻微扰动，非必要不发言。',
+      '今日老板处于"薛定谔状态"，不观测最安全。',
+      '能量波动中……建议减少存在感。',
+      '今天老板眼神有点飘，先别汇报坏消息。',
+    ],
+    tips: [
+      '> 建议：多点头，少说话，汇报推迟到明天。',
+      '> 如遇老板问话，回答控制在20字以内，含笑。',
+      '> 会议上保持表情管理，不要第一个发言。',
+      '> 今天不宜提加薪，不宜提假期，不宜提任何事。',
+      '> 绕道走，能不碰面就不碰面，明天再说。',
+    ],
+    win: false,
+  },
+  danger: {
+    level: '🚨 DANGER · 危险警报',
+    levelClass: 'level-danger',
+    texts: [
+      '警报！老板今天能量爆表·负向！',
+      '高压气场检测到！建议立即隐身！',
+      '危险系数MAX，今日宜装病请假。',
+      '老板已进入风暴模式，靠近需签免责协议。',
+      '检测到火山前兆，建议提前撤离核心区。',
+    ],
+    tips: [
+      '> 紧急建议：突然想起来有个重要外勤，出门。',
+      '> 把自己设置成"深度专注勿扰"，一天不回消息。',
+      '> 如被叫进办公室，带好录音笔（只是以防万一）。',
+      '> 今天无论说什么都是错的，选择沉默。',
+      '> 把锅提前分清楚，今天可能是追责日。',
+    ],
+    win: false,
+  },
+  quantum: {
+    level: '🔮 QUANTUM · 量子叠加',
+    levelClass: 'level-quantum',
+    texts: [
+      '老板今日处于量子叠加态，观测即坍缩。',
+      '检测结果：未知。老板心情由你决定。',
+      '薛定谔的老板：不去问，好坏皆有可能。',
+      '能量态模糊，建议先偷看老板喝的是茶还是咖啡。',
+      '量子纠缠检测：你和老板今天是一体的，慎重。',
+    ],
+    tips: [
+      '> 先观察，再行动。看老板走路姿势判断今日情绪。',
+      '> 去倒杯水，路过老板工位，用眼角余光扫一下。',
+      '> 今天结果由你的态度决定，积极一点，成真。',
+      '> 量子态可以通过"主动寒暄"坍缩成好的结果。',
+      '> 不确定就别动，量子力学说的。',
+    ],
+    win: false,
+  },
+};
+
+/* ══ AUDIO ENGINE ══ */
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// 拉杆拉下：机械咔哒 + 弹簧拉伸音
+function sfxLever() {
+  const ctx = getAudio();
+  const t = ctx.currentTime;
+
+  // 机械咔哒声（短促噪声冲击）
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 3);
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.6, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 800;
+  filter.Q.value = 0.8;
+  src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  src.start(t);
+
+  // 弹簧音（下降音调）
+  const osc = ctx.createOscillator();
+  const og = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(300, t + 0.02);
+  osc.frequency.exponentialRampToValueAtTime(80, t + 0.18);
+  og.gain.setValueAtTime(0.15, t + 0.02);
+  og.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+  const flt = ctx.createBiquadFilter();
+  flt.type = 'lowpass'; flt.frequency.value = 400;
+  osc.connect(flt); flt.connect(og); og.connect(ctx.destination);
+  osc.start(t + 0.02); osc.stop(t + 0.2);
+}
+
+// 拉杆回弹：弹簧回弹声
+function sfxLeverReturn() {
+  const ctx = getAudio();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const og = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(120, t);
+  osc.frequency.exponentialRampToValueAtTime(380, t + 0.12);
+  osc.frequency.exponentialRampToValueAtTime(200, t + 0.22);
+  og.gain.setValueAtTime(0.18, t);
+  og.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+  osc.connect(og); og.connect(ctx.destination);
+  osc.start(t); osc.stop(t + 0.25);
+}
+
+// 转轮转动：机械滚动噪声（持续）
+let reelNoiseNode = null;
+let reelNoiseGain = null;
+function sfxReelStart() {
+  const ctx = getAudio();
+  const t = ctx.currentTime;
+
+  // 持续低频噪声模拟转轮嗡嗡声
+  const bufSize = ctx.sampleRate * 2;
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+  reelNoiseNode = ctx.createBufferSource();
+  reelNoiseNode.buffer = buf;
+  reelNoiseNode.loop = true;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 180;
+  filter.Q.value = 1.5;
+
+  reelNoiseGain = ctx.createGain();
+  reelNoiseGain.gain.setValueAtTime(0.0, t);
+  reelNoiseGain.gain.linearRampToValueAtTime(0.18, t + 0.15);
+
+  reelNoiseNode.connect(filter);
+  filter.connect(reelNoiseGain);
+  reelNoiseGain.connect(ctx.destination);
+  reelNoiseNode.start(t);
+
+  // 叠加一层快速节拍感（模拟符号划过）
+  sfxReelTick();
+}
+
+let tickInterval = null;
+function sfxReelTick() {
+  let tickSpeed = 60;
+  let elapsed = 0;
+  tickInterval = setInterval(() => {
+    elapsed += tickSpeed;
+    const ctx = getAudio();
+    const t = ctx.currentTime;
+    const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.012), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random()*2-1) * (1 - i/d.length);
+    const s = ctx.createBufferSource();
+    s.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.07, t);
+    const f = ctx.createBiquadFilter();
+    f.type = 'highpass'; f.frequency.value = 1200;
+    s.connect(f); f.connect(g); g.connect(ctx.destination);
+    s.start(t);
+    // slow down ticks over time
+    if (elapsed > 800) tickSpeed = 120;
+    if (elapsed > 1400) tickSpeed = 180;
+  }, tickSpeed);
+}
+
+function sfxReelStop() {
+  if (reelNoiseGain && audioCtx) {
+    const t = audioCtx.currentTime;
+    reelNoiseGain.gain.linearRampToValueAtTime(0.0, t + 0.12);
+    setTimeout(() => { try { reelNoiseNode && reelNoiseNode.stop(); } catch(e){} }, 200);
+  }
+  if (tickInterval) { clearInterval(tickInterval); tickInterval = null; }
+}
+
+// 单个转轮停止：咔嚓锁定声
+function sfxReelLock(reelIndex) {
+  const ctx = getAudio();
+  const t = ctx.currentTime;
+  // 金属撞击
+  const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.06), ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random()*2-1) * Math.pow(1 - i/data.length, 2);
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const gain = ctx.createGain();
+  const pitch = [900, 750, 600][reelIndex]; // 三个轮音高递降
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = pitch;
+  filter.Q.value = 2;
+  gain.gain.setValueAtTime(0.5, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  src.start(t);
+
+  // 小音调叮声
+  const osc = ctx.createOscillator();
+  const og = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = [660, 550, 440][reelIndex];
+  og.gain.setValueAtTime(0.12, t);
+  og.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+  osc.connect(og); og.connect(ctx.destination);
+  osc.start(t); osc.stop(t + 0.15);
+}
+
+// 普通结果：低沉结束音
+function sfxResultNormal() {
+  const ctx = getAudio();
+  const t = ctx.currentTime;
+  [220, 196, 165].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.12, t + i * 0.1);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.3);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t + i * 0.1); osc.stop(t + i * 0.1 + 0.3);
+  });
+}
+
+// JACKPOT！欢快上升电子音
+function sfxJackpot() {
+  const ctx = getAudio();
+  const t = ctx.currentTime;
+  const melody = [523,659,784,1047,784,1047,1319,1047,1319,1568];
+  melody.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = i % 2 === 0 ? 'square' : 'triangle';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0, t + i*0.1);
+    g.gain.linearRampToValueAtTime(0.18, t + i*0.1 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i*0.1 + 0.15);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t + i*0.1); osc.stop(t + i*0.1 + 0.18);
+  });
+  // 硬币音效群
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => {
+      const c = ctx.createOscillator();
+      const cg = ctx.createGain();
+      c.type = 'sine';
+      c.frequency.value = 800 + Math.random() * 600;
+      const ct = ctx.currentTime;
+      cg.gain.setValueAtTime(0.08, ct);
+      cg.gain.exponentialRampToValueAtTime(0.001, ct + 0.1);
+      c.connect(cg); cg.connect(ctx.destination);
+      c.start(ct); c.stop(ct + 0.1);
+    }, i * 80 + 600);
+  }
+}
+
+/* ══ AI CONFIG (内置) ══ */
+const HARDCODED_CONFIG = {
+  provider: '硅基流动',
+  baseUrl: 'https://api.siliconflow.cn/v1',
+  model: 'Pro/deepseek-ai/DeepSeek-V3-0324',
+  apiKey: 'sk-yesrrfywovlmidnhposkfwnvibcygazqvziwzozgpugqlhup',
+};
+
+/* ══ AI GENERATION ══ */
+async function generateWithAI(symbols) {
+  const [s0, s1, s2] = symbols;
+  const prompt = `你是一个老板能量占卜师。根据老虎机抽出的 3 个符号，生成今日老板能量检测结果。
+
+符号1（天气/氛围）：${s0}
+符号2（工作物品）：${s1}
+符号3（老板表情）：${s2}
+
+用 JSON 格式回复（不要 markdown 包裹），字段：
+- "level": 表情 + 等级标题，如 "✅ SAFE · 绿灯通行"
+- "levelClass": "level-safe" / "level-caution" / "level-danger" / "level-quantum" / "level-jackpot"
+- "text": 一句今日老板运势描述（中文）
+- "tip": 一句行动建议（中文）
+- "win": true 或 false（三星连珠/大吉时为 true）`;
+
+  try {
+    const resp = await fetch(`${HARDCODED_CONFIG.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${HARDCODED_CONFIG.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: HARDCODED_CONFIG.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.9,
+        max_tokens: 300,
+      }),
+    });
+    if (!resp.ok) throw new Error(`API ${resp.status}`);
+    const data = await resp.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    return JSON.parse(jsonMatch[0]);
+  } catch (e) {
+    console.warn('AI enhanced reading unavailable, using local result', e);
+    return null;
+  }
+}
+
+/* ══ STATE ══ */
+let spinning = false;
+let spinCount = 0;
+let winCount = 0;
+let lightInterval = null;
+let finalSymbols = ['','',''];
+
+/* ══ INIT REELS ══ */
+function initReels() {
+  for (let i = 0; i < 3; i++) {
+    const reel = document.getElementById('r' + i);
+    reel.innerHTML = '';
+    // Fill with random symbols for visual strip
+    const symbols = [...REELS[i],...REELS[i],...REELS[i]];
+    symbols.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'reel-item';
+      div.textContent = s;
+      reel.appendChild(div);
+    });
+    // position at random start
+    const startIdx = Math.floor(Math.random() * REELS[i].length);
+    reel.style.transform = `translateY(-${startIdx * 130}px)`;
+  }
+}
+
+/* ══ LIGHTS ══ */
+function startLights(fast = false) {
+  if (lightInterval) clearInterval(lightInterval);
+  const bulbs = document.querySelectorAll('.bulb');
+  let offset = 0;
+  const cols = ['on-r','on-y','on-g'];
+  lightInterval = setInterval(() => {
+    bulbs.forEach((b, i) => {
+      b.className = 'bulb';
+      const c = b.dataset.c;
+      if ((i + offset) % 3 === 0) b.classList.add(c === 'r' ? 'on-r' : c === 'y' ? 'on-y' : 'on-g');
+    });
+    offset++;
+  }, fast ? 80 : 220);
+}
+
+function stopLights(win = false) {
+  if (lightInterval) clearInterval(lightInterval);
+  const bulbs = document.querySelectorAll('.bulb');
+  if (win) {
+    let f = false;
+    lightInterval = setInterval(() => {
+      bulbs.forEach(b => {
+        b.className = 'bulb';
+        if (f) b.classList.add(b.dataset.c === 'r' ? 'on-r' : b.dataset.c === 'y' ? 'on-y' : 'on-g');
+      });
+      f = !f;
+    }, 120);
+    setTimeout(() => {
+      clearInterval(lightInterval);
+      lightInterval = null;
+      bulbs.forEach(b => b.className = 'bulb');
+    }, 2400);
+  } else {
+    bulbs.forEach(b => b.className = 'bulb');
+  }
+}
+
+/* ══ SPIN LOGIC ══ */
+function handleSpin() {
+  if (spinning) return;
+  spinning = true;
+
+  const spinBtn = document.getElementById('spinBtn');
+  const leverKnob = document.getElementById('leverKnob');
+  spinBtn.disabled = true;
+  spinBtn.classList.add('pressed');
+  leverKnob.classList.add('spin-active');
+
+  // Haptic if available
+  if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+
+  // 🔊 拉杆音效
+  sfxLever();
+  setTimeout(sfxLeverReturn, 280); // 回弹声
+  setTimeout(sfxReelStart, 120);   // 转轮开始转动
+
+  // hide result
+  document.getElementById('resultIdle').style.display = 'none';
+  document.getElementById('resultContent').style.display = 'none';
+  document.getElementById('resultBoard').classList.remove('winning');
+
+  // start lights
+  startLights(true);
+
+  // pick final symbols
+  const finalIdx = [0,1,2].map(i => Math.floor(Math.random() * REELS[i].length));
+  finalSymbols = finalIdx.map((idx, i) => REELS[i][idx]);
+
+  // spin each reel
+  const REELCOUNT = 30; // items to scroll
+  const reelWraps = [0,1,2].map(i => document.getElementById('reel' + i));
+  const reels = [0,1,2].map(i => document.getElementById('r' + i));
+
+  reelWraps.forEach(w => w.classList.add('spinning'));
+
+  // animate each reel, staggered stop
+  const stopDelays = [900, 1300, 1700];
+
+  reels.forEach((reel, i) => {
+    const targetOffset = finalIdx[i] * 130;
+    // quick spin animation
+    let frame = 0;
+    const speed = [6, 7, 8][i]; // px per frame ≈ items
+    let currentY = parseFloat(reel.style.transform.replace('translateY(', '').replace('px)', '')) || 0;
+    const totalItems = REELS[i].length * 3;
+    const maxY = totalItems * 130;
+
+    // CSS animation approach: shift by large offset then snap
+    reel.style.transition = `transform ${stopDelays[i]}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
+    // spin down by REELCOUNT * 130 + target
+    const spinTo = currentY - (REELCOUNT * 130) - (targetOffset - ((-currentY) % (REELS[i].length * 130)));
+    // simpler: just spin to a big negative, then snap
+    const bigSpin = currentY - (REELCOUNT + finalIdx[i]) * 130;
+    reel.style.transform = `translateY(${bigSpin}px)`;
+
+    setTimeout(() => {
+      reelWraps[i].classList.remove('spinning');
+      reelWraps[i].classList.add('stopping');
+      // snap to exact position within first loop
+      reel.style.transition = 'none';
+      const snapY = -(finalIdx[i] * 130);
+      reel.style.transform = `translateY(${snapY}px)`;
+      setTimeout(() => reelWraps[i].classList.remove('stopping'), 100);
+
+      // 🔊 每个转轮停止的咔嚓声
+      sfxReelLock(i);
+      if (i === 2) sfxReelStop(); // 停止噪声背景
+
+      if (i === 2) {
+        // all stopped
+        finishSpin();
+      }
+    }, stopDelays[i]);
+  });
+}
+
+function finishSpin() {
+  spinCount++;
+  document.getElementById('creditVal').textContent = String(spinCount).padStart(2,'0');
+
+  const result = calcResult(finalSymbols);
+
+  if (result.win) {
+    winCount++;
+    document.getElementById('winVal').textContent = String(winCount).padStart(2,'0');
+    document.getElementById('resultBoard').classList.add('winning');
+    burstCoins();
+    stopLights(true);
+    if (navigator.vibrate) navigator.vibrate([50,30,50,30,100]);
+    setTimeout(sfxJackpot, 100); // 🔊 JACKPOT 音效
+  } else {
+    stopLights(false);
+    setTimeout(sfxResultNormal, 80); // 🔊 普通结果音效
+  }
+
+  // show result
+  const levelEl = document.getElementById('resultLevel');
+  const textEl = document.getElementById('resultText');
+  const tipEl = document.getElementById('resultTip');
+
+  levelEl.textContent = result.level;
+  levelEl.className = 'result-level ' + result.levelClass;
+  if (result.win) levelEl.classList.add('glow');
+
+  const tIdx = Math.floor(Math.random() * result.texts.length);
+  const pIdx = Math.floor(Math.random() * result.tips.length);
+  textEl.textContent = result.texts[tIdx];
+  tipEl.textContent = result.tips[pIdx];
+
+  document.getElementById('resultContent').style.display = 'block';
+
+  // re-enable
+  const spinBtn = document.getElementById('spinBtn');
+  const leverKnob = document.getElementById('leverKnob');
+  spinBtn.classList.remove('pressed');
+  spinBtn.disabled = false;
+  leverKnob.classList.remove('spin-active');
+
+  setTimeout(() => {
+    spinning = false;
+  }, 300);
+
+  // ══ AI enhanced reading (non-blocking) ══
+  generateWithAI(finalSymbols).then(aiResult => {
+    if (!aiResult) return;
+    const lv = document.getElementById('resultLevel');
+    const tx = document.getElementById('resultText');
+    const tp = document.getElementById('resultTip');
+    const rb = document.getElementById('resultBoard');
+    if (aiResult.level) lv.textContent = aiResult.level;
+    if (aiResult.levelClass) lv.className = 'result-level ' + aiResult.levelClass;
+    if (aiResult.text) tx.textContent = aiResult.text;
+    if (aiResult.tip) tp.textContent = aiResult.tip;
+    if (aiResult.win) rb.classList.add('winning');
+    if (aiResult.levelClass === 'level-jackpot') lv.classList.add('glow');
+  });
+}
+
+/* ══ RESULT CALCULATION ══ */
+function calcResult(syms) {
+  const [s0, s1, s2] = syms;
+
+  // jackpot: all same
+  if (s0 === s1 && s1 === s2) return RESULTS.jackpot;
+
+  // score system
+  const wv = VIBE[s0] || 'normal';
+  const bv = BOSS_VIBE[s2] || 'normal';
+  const ev = WORK_VIBE[s1] || 'normal';
+
+  const goodCount  = [wv,bv,ev].filter(v=>v==='good').length;
+  const badCount   = [wv,bv,ev].filter(v=>v==='bad').length;
+  const weirdCount = [wv,bv,ev].filter(v=>v==='weird' || v==='wild').length;
+
+  if (badCount >= 2) return RESULTS.danger;
+  if (weirdCount >= 2) return RESULTS.quantum;
+  if (goodCount >= 2) return RESULTS.safe;
+  if (badCount === 1 && goodCount === 1) return RESULTS.caution;
+  if (weirdCount === 1) return RESULTS.quantum;
+  if (goodCount === 1) return RESULTS.safe;
+  return RESULTS.caution;
+}
+
+/* ══ COIN BURST ══ */
+function burstCoins() {
+  const icons = ['🪙','⭐','✨','💰','🌟','🎊'];
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+  for (let i = 0; i < 18; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'coin';
+      el.textContent = icons[Math.floor(Math.random()*icons.length)];
+      const angle = (Math.random() * Math.PI * 2);
+      const dist = 150 + Math.random() * 200;
+      el.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
+      el.style.setProperty('--ty', Math.sin(angle)*dist - 100 + 'px');
+      el.style.setProperty('--rot', (Math.random()*720-360) + 'deg');
+      el.style.setProperty('--dur', (0.8 + Math.random()*0.8) + 's');
+      el.style.left = cx + 'px';
+      el.style.top = cy + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1600);
+    }, i * 40);
+  }
+}
+
+/* ══ KEYBOARD ══ */
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
+    handleSpin();
+  }
+});
+
+/* ══ BOOT ══ */
+initReels();
+startLights(false);
+</script>
+</body>
+</html>
