@@ -69,7 +69,7 @@ body::before {
   z-index: 1000;
 }
 
-/* bg stars/noise */
+/* bg energy particles + glow */
 body::after {
   content: '';
   position: fixed; inset: 0;
@@ -79,6 +79,66 @@ body::after {
     radial-gradient(circle at 50% 80%, rgba(40,10,10,0.4) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+}
+
+/* floating energy dots */
+body .bg-particles {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.bg-particles span {
+  position: absolute;
+  display: block;
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 6px 2px var(--gold);
+  opacity: 0;
+  animation: floatUp 8s infinite ease-in;
+}
+.bg-particles span:nth-child(1)  { left: 10%;  animation-delay: 0s;  animation-duration: 9s;  width:3px; height:3px; }
+.bg-particles span:nth-child(2)  { left: 25%;  animation-delay: 1.2s; animation-duration: 11s; width:5px; height:5px; }
+.bg-particles span:nth-child(3)  { left: 40%;  animation-delay: 2.5s; animation-duration: 8s;  width:2px; height:2px; }
+.bg-particles span:nth-child(4)  { left: 55%;  animation-delay: 0.8s; animation-duration: 10s; width:4px; height:4px; }
+.bg-particles span:nth-child(5)  { left: 70%;  animation-delay: 3.2s; animation-duration: 7s;  width:3px; height:3px; }
+.bg-particles span:nth-child(6)  { left: 85%;  animation-delay: 1.8s; animation-duration: 12s; width:5px; height:5px; }
+.bg-particles span:nth-child(7)  { left: 15%;  animation-delay: 4.5s; animation-duration: 9s;  width:2px; height:2px; }
+.bg-particles span:nth-child(8)  { left: 50%;  animation-delay: 5.2s; animation-duration: 8s;  width:4px; height:4px; }
+.bg-particles span:nth-child(9)  { left: 75%;  animation-delay: 3.8s; animation-duration: 10s; width:3px; height:3px; }
+.bg-particles span:nth-child(10) { left: 90%;  animation-delay: 6.0s; animation-duration: 7s;  width:2px; height:2px; }
+
+@keyframes floatUp {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* bottom status bar (fills empty screen space) */
+.page-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: linear-gradient(0deg, rgba(10,6,8,0.95) 0%, transparent 100%);
+  padding: 40px 20px 12px;
+  text-align: center;
+  pointer-events: none;
+}
+.page-footer .footer-line {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(255,255,255,0.15);
+  text-transform: uppercase;
+  display: block;
+  line-height: 1.8;
+}
+
+@media (max-width: 480px) {
+  .page-footer { padding: 30px 16px 10px; }
+  .page-footer .footer-line { font-size: 8px; letter-spacing: 0.2em; }
 }
 
 /* ── MACHINE BODY ── */
@@ -1403,5 +1463,17 @@ document.addEventListener('keydown', e => {
 initReels();
 startLights(false);
 </script>
+<div class="bg-particles">
+  <span></span><span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<div class="page-footer">
+  <span class="footer-line">╔══════════════════════════════════╗</span>
+  <span class="footer-line">║ BOSS-O-MATIC™ v2025  ·  ENERGY GRID ONLINE ║</span>
+  <span class="footer-line">╚══════════════════════════════════╝</span>
+  <span class="footer-line">© NO REFUNDS · FATE FINAL · INSERT COIN</span>
+</div>
+
 </body>
 </html>
