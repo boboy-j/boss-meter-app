@@ -47,10 +47,11 @@ body {
   transform-origin: center center;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 820px) {
   .machine-scale {
     transform: none;
   }
+  body { padding: 8px; }
 }
 
 /* scanline overlay */
@@ -534,105 +535,119 @@ body::after {
   transition: filter 0.2s;
 }
 
-/* ── RESPONSIVE: TABLET & MOBILE ── */
+/* ── RESPONSIVE: TABLET (480–820px) ── */
+@media (max-width: 820px) {
+  .machine {
+    width: 100%;
+    max-width: 440px;
+    border-radius: 24px 24px 14px 14px;
+  }
+  .machine-top { padding: 14px 18px 12px; }
+  .title-main { font-size: 22px; }
+}
+
+/* ── RESPONSIVE: PHONE (≤480px) ── */
 @media (max-width: 480px) {
-  body { padding: 8px; }
+  body { padding: 6px; }
 
   .machine {
     width: 100%;
-    border-radius: 20px 20px 12px 12px;
-    padding: 0 0 20px;
+    max-width: 100%;
+    border-radius: 16px 16px 10px 10px;
+    padding: 0 0 16px;
+    border-width: 2px;
   }
 
   .machine-top {
-    padding: 12px 14px 10px;
-    border-radius: 18px 18px 0 0;
+    padding: 10px 12px 8px;
+    border-radius: 14px 14px 0 0;
   }
+  .title-board { padding: 6px 8px 5px; }
+  .title-zh { font-size: 9px; }
+  .title-main { font-size: 18px; }
+  .title-sub { font-size: 7px; letter-spacing: 0.15em; }
 
-  .title-board { padding: 8px 10px 6px; }
-  .title-zh { font-size: 10px; }
-  .title-main { font-size: 20px; }
-  .title-sub { font-size: 8px; }
+  .light-strip { gap: 4px; padding: 5px 0 3px; }
+  .bulb { width: 7px; height: 7px; }
 
-  .bulb { width: 8px; height: 8px; gap: 5px; }
-  .light-strip { gap: 5px; padding: 6px 0 4px; }
-
-  .slot-outer { margin: 0 10px; border-radius: 10px; padding: 3px; }
-  .slot-inner { gap: 3px; padding: 5px; border-radius: 8px; }
-
-  .reel-wrap { height: 90px; }
-  .reel-item { height: 90px; font-size: 38px; }
-
-  .reel-wrap::before { margin-top: -45px; }
-
-  .payline { left: -3px; right: -3px; }
+  .slot-outer { margin: 0 8px; border-radius: 8px; padding: 2px; }
+  .slot-inner { gap: 2px; padding: 4px; border-radius: 6px; }
+  .reel-wrap { height: 80px; }
+  .reel-item { height: 80px; font-size: 34px; }
+  .reel-wrap::before { margin-top: -40px; }
 
   .result-board {
-    margin: 10px 10px 0;
-    padding: 10px 12px;
-    min-height: 70px;
+    margin: 8px 8px 0;
+    padding: 8px 10px;
+    min-height: 60px;
   }
-  .result-idle { font-size: 11px; }
-  .result-level { font-size: 15px; }
+  .result-idle { font-size: 10px; line-height: 1.6; }
+  .result-level { font-size: 14px; }
   .result-text { font-size: 12px; }
-  .result-tip { font-size: 10px; }
+  .result-tip { font-size: 9px; }
 
   .mid-panel {
-    margin: 10px 10px 0;
-    padding: 8px 10px;
-    gap: 6px;
+    margin: 8px 8px 0;
+    padding: 6px 8px;
+    gap: 4px;
   }
-
   .credit-display {
-    font-size: 9px;
-    padding: 4px 8px;
-    min-width: 70px;
+    font-size: 8px;
+    padding: 3px 6px;
+    min-width: 60px;
   }
-  .credit-val { font-size: 15px; }
+  .credit-val { font-size: 14px; }
 
-  .lever-track { width: 12px; height: 48px; }
-  .lever-knob { width: 22px; height: 22px; top: 3px; }
-  .lever-knob.pulled { top: 28px; }
+  .lever-track { width: 10px; height: 42px; }
+  .lever-knob { width: 20px; height: 20px; top: 2px; }
+  .lever-knob.pulled { top: 24px; }
   @keyframes leverReturn {
-    0% { top: 28px; }
+    0% { top: 24px; }
     60% { top: 0px; }
-    80% { top: 6px; }
-    100% { top: 3px; }
+    80% { top: 5px; }
+    100% { top: 2px; }
   }
+  .lever-label { font-size: 7px; }
 
-  .spin-btn { width: 52px; height: 52px; font-size: 9px; }
-  .spin-btn .btn-icon { font-size: 18px; }
-  .spin-btn .btn-text { font-size: 8px; }
-
-  .bottom-chrome { margin: 10px 10px 0; gap: 4px; }
-  .model-plate { font-size: 7px; }
-  .rivet { width: 6px; height: 6px; gap: 4px; }
-  .rivet-row { gap: 4px; }
-}
-
-/* ── RESPONSIVE: VERY SMALL SCREENS (≦360px) ── */
-@media (max-width: 360px) {
-  .machine-top { padding: 8px 10px 6px; }
-  .title-main { font-size: 17px; }
-  .reel-wrap { height: 72px; }
-  .reel-item { height: 72px; font-size: 30px; }
-  .reel-wrap::before { margin-top: -36px; }
-
-  .result-board { min-height: 60px; padding: 8px 10px; }
-  .result-text { font-size: 11px; }
-
-  .mid-panel { padding: 6px 8px; gap: 4px; }
-  .credit-display { font-size: 8px; min-width: 60px; padding: 3px 6px; }
-  .credit-val { font-size: 13px; }
-
-  .spin-btn { width: 44px; height: 44px; }
-  .spin-btn .btn-icon { font-size: 15px; }
+  .spin-btn { width: 46px; height: 46px; font-size: 8px; border-bottom-width: 4px; }
+  .spin-btn:active, .spin-btn.pressed { transform: translateY(2px); }
+  .spin-btn .btn-icon { font-size: 16px; }
   .spin-btn .btn-text { font-size: 7px; }
 
-  .slot-outer { margin: 0 6px; }
-  .result-board { margin-left: 6px; margin-right: 6px; }
-  .mid-panel { margin-left: 6px; margin-right: 6px; }
-  .bottom-chrome { margin-left: 6px; margin-right: 6px; }
+  .mid-panel > div[style*="gap:16px"] { gap: 10px !important; }
+
+  .bottom-chrome { margin: 8px 8px 0; gap: 4px; }
+  .model-plate { font-size: 7px; letter-spacing: 0.1em; }
+  .rivet { width: 5px; height: 5px; }
+  .rivet-row { gap: 3px; }
+}
+
+/* ── RESPONSIVE: VERY SMALL SCREENS (≤375px, e.g. iPhone SE) ── */
+@media (max-width: 375px) {
+  .machine-top { padding: 8px 8px 6px; }
+  .title-main { font-size: 16px; }
+  .title-zh { font-size: 8px; }
+
+  .reel-wrap { height: 68px; }
+  .reel-item { height: 68px; font-size: 28px; }
+  .reel-wrap::before { margin-top: -34px; }
+
+  .result-board { min-height: 52px; padding: 6px 8px; }
+  .result-text { font-size: 11px; }
+  .result-level { font-size: 12px; }
+
+  .mid-panel { padding: 4px 6px; }
+  .credit-display { font-size: 7px; min-width: 50px; padding: 2px 5px; }
+  .credit-val { font-size: 12px; }
+
+  .spin-btn { width: 40px; height: 40px; }
+  .spin-btn .btn-icon { font-size: 14px; }
+  .spin-btn .btn-text { font-size: 6px; }
+
+  .slot-outer { margin: 0 5px; }
+  .result-board { margin-left: 5px; margin-right: 5px; }
+  .mid-panel { margin-left: 5px; margin-right: 5px; }
+  .bottom-chrome { margin-left: 5px; margin-right: 5px; }
 }
 
 /* ── RESULT COLORS ── */
