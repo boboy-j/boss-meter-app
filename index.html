@@ -31,17 +31,26 @@
 body {
   background: var(--bg);
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Noto Sans SC', sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
+  padding: 12px;
 }
 
 .machine-scale {
   transform: scale(1.33);
   transform-origin: center center;
+}
+
+@media (max-width: 600px) {
+  .machine-scale {
+    transform: none;
+  }
 }
 
 /* scanline overlay */
@@ -76,6 +85,7 @@ body::after {
   position: relative;
   z-index: 10;
   width: 440px;
+  max-width: 100%;
   background: linear-gradient(170deg, #2a1810 0%, #1a0f0a 40%, #140a08 100%);
   border-radius: 28px 28px 16px 16px;
   border: 3px solid var(--chrome);
@@ -522,6 +532,107 @@ body::after {
 .reel-wrap.stopping .reel-item {
   filter: blur(0);
   transition: filter 0.2s;
+}
+
+/* ── RESPONSIVE: TABLET & MOBILE ── */
+@media (max-width: 480px) {
+  body { padding: 8px; }
+
+  .machine {
+    width: 100%;
+    border-radius: 20px 20px 12px 12px;
+    padding: 0 0 20px;
+  }
+
+  .machine-top {
+    padding: 12px 14px 10px;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .title-board { padding: 8px 10px 6px; }
+  .title-zh { font-size: 10px; }
+  .title-main { font-size: 20px; }
+  .title-sub { font-size: 8px; }
+
+  .bulb { width: 8px; height: 8px; gap: 5px; }
+  .light-strip { gap: 5px; padding: 6px 0 4px; }
+
+  .slot-outer { margin: 0 10px; border-radius: 10px; padding: 3px; }
+  .slot-inner { gap: 3px; padding: 5px; border-radius: 8px; }
+
+  .reel-wrap { height: 90px; }
+  .reel-item { height: 90px; font-size: 38px; }
+
+  .reel-wrap::before { margin-top: -45px; }
+
+  .payline { left: -3px; right: -3px; }
+
+  .result-board {
+    margin: 10px 10px 0;
+    padding: 10px 12px;
+    min-height: 70px;
+  }
+  .result-idle { font-size: 11px; }
+  .result-level { font-size: 15px; }
+  .result-text { font-size: 12px; }
+  .result-tip { font-size: 10px; }
+
+  .mid-panel {
+    margin: 10px 10px 0;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .credit-display {
+    font-size: 9px;
+    padding: 4px 8px;
+    min-width: 70px;
+  }
+  .credit-val { font-size: 15px; }
+
+  .lever-track { width: 12px; height: 48px; }
+  .lever-knob { width: 22px; height: 22px; top: 3px; }
+  .lever-knob.pulled { top: 28px; }
+  @keyframes leverReturn {
+    0% { top: 28px; }
+    60% { top: 0px; }
+    80% { top: 6px; }
+    100% { top: 3px; }
+  }
+
+  .spin-btn { width: 52px; height: 52px; font-size: 9px; }
+  .spin-btn .btn-icon { font-size: 18px; }
+  .spin-btn .btn-text { font-size: 8px; }
+
+  .bottom-chrome { margin: 10px 10px 0; gap: 4px; }
+  .model-plate { font-size: 7px; }
+  .rivet { width: 6px; height: 6px; gap: 4px; }
+  .rivet-row { gap: 4px; }
+}
+
+/* ── RESPONSIVE: VERY SMALL SCREENS (≦360px) ── */
+@media (max-width: 360px) {
+  .machine-top { padding: 8px 10px 6px; }
+  .title-main { font-size: 17px; }
+  .reel-wrap { height: 72px; }
+  .reel-item { height: 72px; font-size: 30px; }
+  .reel-wrap::before { margin-top: -36px; }
+
+  .result-board { min-height: 60px; padding: 8px 10px; }
+  .result-text { font-size: 11px; }
+
+  .mid-panel { padding: 6px 8px; gap: 4px; }
+  .credit-display { font-size: 8px; min-width: 60px; padding: 3px 6px; }
+  .credit-val { font-size: 13px; }
+
+  .spin-btn { width: 44px; height: 44px; }
+  .spin-btn .btn-icon { font-size: 15px; }
+  .spin-btn .btn-text { font-size: 7px; }
+
+  .slot-outer { margin: 0 6px; }
+  .result-board { margin-left: 6px; margin-right: 6px; }
+  .mid-panel { margin-left: 6px; margin-right: 6px; }
+  .bottom-chrome { margin-left: 6px; margin-right: 6px; }
 }
 
 /* ── RESULT COLORS ── */
